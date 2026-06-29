@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import com.datashare.backend.common.exception.UnauthorizedException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -49,4 +50,20 @@ public class GlobalExceptionHandler {
                 validationErrors
         );
     }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ApiErrorResponse handleUnauthorizedException(
+        UnauthorizedException exception,
+        HttpServletRequest request
+) {
+        return new ApiErrorResponse(
+        LocalDateTime.now(),
+        HttpStatus.UNAUTHORIZED.value(),
+        HttpStatus.UNAUTHORIZED.getReasonPhrase(),
+        exception.getMessage(),
+        request.getRequestURI(),
+        null
+        );
+        }
 }
