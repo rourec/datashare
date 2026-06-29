@@ -1,0 +1,27 @@
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Env / secrets
+.env
+.env.local
+*.log
+
+# Uploads
+uploads/*
+!uploads/.gitkeep
+
+# Java / Maven
+target/
+*.class
+
+# Angular / Node
+node_modules/
+dist/
+.angular/
+coverage/
+
+# Docker
+docker-compose.override.yml
