@@ -8,9 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
+import java.nio.file.*;
 import java.util.UUID;
 
 @Service
@@ -20,48 +18,76 @@ public class LocalFileStorageService {
 
     public LocalFileStorageService(@Value("${file.upload-dir:uploads}") String uploadDir) {
         this.uploadDirectory = Path.of(uploadDir).toAbsolutePath().normalize();
-
-        try {
-            Files.createDirectories(this.uploadDirectory);
-        } catch (IOException exception) {
-            throw new FileStorageException("Could not initialize upload directory: " + this.uploadDirectory, exception);
-        }
+        initializeUploadDirectory();
     }
 
-    public String storeFile(MultipartFile file) {
+    public String store(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             throw new FileStorageException("Cannot store an empty file.");
         }
 
-        String originalFilename = StringUtils.cleanPath(file.getOriginalFilename() == null ? "" : file.getOriginalFilename());
+        String originalFilename = StringUtils.cleanPath(
+                file.getOriginalFilename() == null ? "" : file.getOriginalFilename()
+        );
 
-        if (originalFilename.contains("..")) {
-            throw new FileStorageException("Invalid file name detected: " + originalFilename);
+        if (originalFilename.isBlank() || originalFilename.contains("..")) {
+            throw new FileStorageException("Invalid file name: " + originalFilename);
         }
 
-        String extension = extractExtension(originalFilename);
-        String storedFilename = UUID.randomUUID().toString() + extension;
-        Path targetLocation = this.uploadDirectory.resolve(storedFilename).normalize();
-
-        if (!targetLocation.startsWith(this.uploadDirectory)) {
-            throw new FileStorageException("Cannot store file outside the designated upload directory.");
-        }
+        String storedFilename = UUID.randomUUID() + extractExtension(originalFilename);
+        Path targetPath = resolve(storedFilename);
 
         try (InputStream inputStream = file.getInputStream()) {
-            Files.copy(inputStream, targetLocation, StandardCopyOption.REPLACE_EXISTING);
+            Files.copy(inputStream, targetPath);
+            return storedFilename;
+        } catch (FileAlreadyExistsException exception) {
+            throw new FileStorageException("Generated file name already exists.", exception);
         } catch (IOException exception) {
-            throw new FileStorageException("Failed to store file " + originalFilename, exception);
+            throw new FileStorageException("Failed to store file: " + originalFilename, exception);
+        }
+    }
+
+    public Path load(String storedFilename) {
+        return resolve(storedFilename);
+    }
+
+    public boolean exists(String storedFilename) {
+        return Files.exists(resolve(storedFilename));
+    }
+
+    public void delete(String storedFilename) {
+        try {
+            Files.deleteIfExists(resolve(storedFilename));
+        } catch (IOException exception) {
+            throw new FileStorageException("Failed to delete file: " + storedFilename, exception);
+        }
+    }
+
+    private void initializeUploadDirectory() {
+        try {
+            Files.createDirectories(uploadDirectory);
+        } catch (IOException exception) {
+            throw new FileStorageException("Could not initialize upload directory: " + uploadDirectory, exception);
+        }
+    }
+
+    private Path resolve(String storedFilename) {
+        Path resolvedPath = uploadDirectory.resolve(storedFilename).normalize();
+
+        if (!resolvedPath.startsWith(uploadDirectory)) {
+            throw new FileStorageException("Invalid storage path: " + storedFilename);
         }
 
-        return storedFilename;
+        return resolvedPath;
     }
 
     private static String extractExtension(String filename) {
         int extensionIndex = filename.lastIndexOf('.');
+
         if (extensionIndex >= 0 && extensionIndex < filename.length() - 1) {
             return filename.substring(extensionIndex);
         }
+
         return "";
     }
 }
-
