@@ -1,9 +1,11 @@
 package com.datashare.backend.file;
 
 import com.datashare.backend.file.storage.LocalFileStorageService;
+import com.datashare.backend.file.validation.FileValidator;
 import com.datashare.backend.user.User;
 import com.datashare.backend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,24 +16,28 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FileTransferService {
 
-    private static final int DEFAULT_EXPIRATION_DAYS = 7;
-
     private final FileTransferRepository fileTransferRepository;
     private final UserRepository userRepository;
     private final LocalFileStorageService localFileStorageService;
+    private final FileValidator fileValidator;
+
+    @Value("${app.file.expiration-days}")
+    private int expirationDays;
 
     public FileUploadResponse upload(MultipartFile file, String userEmail) {
+        fileValidator.validate(file);
+
         User owner = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalStateException("Authenticated user not found"));
 
         String storedFilename = localFileStorageService.store(file);
-        LocalDateTime expiresAt = LocalDateTime.now().plusDays(DEFAULT_EXPIRATION_DAYS);
+        LocalDateTime expiresAt = LocalDateTime.now().plusDays(expirationDays);
         String downloadToken = UUID.randomUUID().toString();
 
         FileTransfer fileTransfer = FileTransfer.builder()
                 .originalFilename(file.getOriginalFilename())
                 .storedFilename(storedFilename)
-                .contentType(file.getContentType() == null ? "application/octet-stream" : file.getContentType())
+                .contentType(resolveContentType(file))
                 .size(file.getSize())
                 .downloadToken(downloadToken)
                 .uploadedAt(LocalDateTime.now())
@@ -52,5 +58,9 @@ public class FileTransferService {
                 "/api/download/" + savedFile.getDownloadToken(),
                 savedFile.getExpiresAt()
         );
+    }
+
+    private String resolveContentType(MultipartFile file) {
+        return file.getContentType() == null ? "application/octet-stream" : file.getContentType();
     }
 }
