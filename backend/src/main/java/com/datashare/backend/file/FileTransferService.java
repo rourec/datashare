@@ -76,6 +76,25 @@ public class FileTransferService {
         return localFileStorageService.loadAsResource(file.getStoredFilename());
     }
 
+
+    public void delete(UUID uuidFile, String userEmail) {
+        User owner = getUserByEmail(userEmail);
+
+        FileTransfer file = fileTransferRepository.findByUuidFileAndOwner(uuidFile, owner)
+                .orElseThrow(() -> new IllegalArgumentException("File not found"));
+
+        if (file.getStatus() == FileStatus.DELETED) {
+            return;
+        }
+
+        localFileStorageService.delete(file.getStoredFilename());
+
+        file.setStatus(FileStatus.DELETED);
+        file.setDeletedAt(LocalDateTime.now());
+
+        fileTransferRepository.save(file);
+    }
+
     public List<FileHistoryResponse> history(String userEmail) {
         User owner = getUserByEmail(userEmail);
 

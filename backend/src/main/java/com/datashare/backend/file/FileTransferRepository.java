@@ -20,4 +20,6 @@ public interface FileTransferRepository extends JpaRepository<FileTransfer, UUID
                                                       LocalDateTime dateTime);
 
     boolean existsByDownloadToken(String downloadToken);
+
+    Optional<FileTransfer> findByUuidFileAndOwner(UUID uuidFile, User owner);
 }
