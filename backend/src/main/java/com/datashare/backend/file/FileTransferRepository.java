@@ -16,5 +16,8 @@ public interface FileTransferRepository extends JpaRepository<FileTransfer, UUID
 
     List<FileTransfer> findByStatus(FileStatus status);
 
-    List<FileTransfer> findByStatusAndExpiresAtBefore(FileStatus status, LocalDateTime dateTime);
+    List<FileTransfer> findByStatusAndExpiresAtBefore(FileStatus status,
+                                                      LocalDateTime dateTime);
+
+    boolean existsByDownloadToken(String downloadToken);
 }

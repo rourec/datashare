@@ -2,6 +2,8 @@ package com.datashare.backend.file.storage;
 
 import com.datashare.backend.common.exception.FileStorageException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.PathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -47,8 +49,17 @@ public class LocalFileStorageService {
         }
     }
 
-    public Path load(String storedFilename) {
-        return resolve(storedFilename);
+    public Resource loadAsResource(String storedFilename) {
+
+        Path path = resolve(storedFilename);
+
+        Resource resource = new PathResource(path);
+
+        if (!resource.exists() || !resource.isReadable()) {
+            throw new FileStorageException("File not found: " + storedFilename);
+        }
+
+        return resource;
     }
 
     public boolean exists(String storedFilename) {
@@ -72,6 +83,7 @@ public class LocalFileStorageService {
     }
 
     private Path resolve(String storedFilename) {
+
         Path resolvedPath = uploadDirectory.resolve(storedFilename).normalize();
 
         if (!resolvedPath.startsWith(uploadDirectory)) {
@@ -82,6 +94,7 @@ public class LocalFileStorageService {
     }
 
     private static String extractExtension(String filename) {
+
         int extensionIndex = filename.lastIndexOf('.');
 
         if (extensionIndex >= 0 && extensionIndex < filename.length() - 1) {

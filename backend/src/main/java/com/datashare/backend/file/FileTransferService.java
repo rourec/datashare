@@ -6,6 +6,7 @@ import com.datashare.backend.user.User;
 import com.datashare.backend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,12 +26,14 @@ public class FileTransferService {
     private int expirationDays;
 
     public FileUploadResponse upload(MultipartFile file, String userEmail) {
+
         fileValidator.validate(file);
 
         User owner = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new IllegalStateException("Authenticated user not found"));
 
         String storedFilename = localFileStorageService.store(file);
+
         LocalDateTime expiresAt = LocalDateTime.now().plusDays(expirationDays);
         String downloadToken = UUID.randomUUID().toString();
 
@@ -60,7 +63,25 @@ public class FileTransferService {
         );
     }
 
+    public Resource download(String downloadToken) {
+
+        FileTransfer file = fileTransferRepository.findByDownloadToken(downloadToken)
+                .orElseThrow(() -> new IllegalArgumentException("Download token not found"));
+
+        if (file.getStatus() != FileStatus.ACTIVE) {
+            throw new IllegalStateException("File is not available");
+        }
+
+        if (file.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Download link has expired");
+        }
+
+        return localFileStorageService.loadAsResource(file.getStoredFilename());
+    }
+
     private String resolveContentType(MultipartFile file) {
-        return file.getContentType() == null ? "application/octet-stream" : file.getContentType();
+        return file.getContentType() == null
+                ? "application/octet-stream"
+                : file.getContentType();
     }
 }
