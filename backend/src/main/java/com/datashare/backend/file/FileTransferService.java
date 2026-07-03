@@ -62,6 +62,27 @@ public class FileTransferService {
         );
     }
 
+
+    public FileDownloadMetadataResponse getDownloadMetadata(String downloadToken) {
+        FileTransfer file = fileTransferRepository.findByDownloadToken(downloadToken)
+                .orElseThrow(() -> new IllegalArgumentException("Download token not found"));
+
+        if (file.getStatus() != FileStatus.ACTIVE) {
+            throw new IllegalStateException("File is not available");
+        }
+
+        if (file.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Download link has expired");
+        }
+
+        return new FileDownloadMetadataResponse(
+                file.getOriginalFilename(),
+                file.getSize(),
+                file.getContentType(),
+                file.getExpiresAt()
+        );
+    }
+
     public Resource download(String downloadToken) {
         FileTransfer file = fileTransferRepository.findByDownloadToken(downloadToken)
                 .orElseThrow(() -> new IllegalArgumentException("Download token not found"));

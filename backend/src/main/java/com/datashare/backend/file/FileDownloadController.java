@@ -12,6 +12,11 @@ public class FileDownloadController {
 
     private final FileTransferService fileTransferService;
 
+    @GetMapping("/{token}/metadata")
+    public FileDownloadMetadataResponse metadata(@PathVariable String token) {
+        return fileTransferService.getDownloadMetadata(token);
+    }
+
     @GetMapping("/{token}")
     public ResponseEntity<Resource> download(@PathVariable String token) {
         Resource resource = fileTransferService.download(token);
