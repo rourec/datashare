@@ -106,11 +106,8 @@ class FileTransferServiceTest {
 
         fileTransferService.delete(uuidFile, "test@datashare.com");
 
-        assertThat(file.getStatus()).isEqualTo(FileStatus.DELETED);
-        assertThat(file.getDeletedAt()).isNotNull();
-
         verify(localFileStorageService).delete("stored-file.txt");
-        verify(fileTransferRepository).save(file);
+        verify(fileTransferRepository).delete(file);
     }
 
     private User buildUser() {
