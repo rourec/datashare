@@ -56,7 +56,7 @@ class FileTransferServiceTest {
             return file;
         });
 
-        FileUploadResponse response = fileTransferService.upload(multipartFile, "test@datashare.com");
+        FileUploadResponse response = fileTransferService.upload(multipartFile, "test@datashare.com", 7);
 
         assertThat(response.originalFilename()).isEqualTo("document.txt");
         assertThat(response.size()).isEqualTo(123L);

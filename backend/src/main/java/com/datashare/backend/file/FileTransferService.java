@@ -26,13 +26,14 @@ public class FileTransferService {
     @Value("${app.file.expiration-days}")
     private int expirationDays;
 
-    public FileUploadResponse upload(MultipartFile file, String userEmail) {
+    public FileUploadResponse upload(MultipartFile file, String userEmail, Integer requestedExpirationDays) {
         fileValidator.validate(file);
 
         User owner = getUserByEmail(userEmail);
 
         String storedFilename = localFileStorageService.store(file);
-        LocalDateTime expiresAt = LocalDateTime.now().plusDays(expirationDays);
+        int effectiveExpirationDays = requestedExpirationDays == null ? expirationDays : requestedExpirationDays;
+        LocalDateTime expiresAt = LocalDateTime.now().plusDays(effectiveExpirationDays);
         String downloadToken = UUID.randomUUID().toString();
 
         FileTransfer fileTransfer = FileTransfer.builder()
