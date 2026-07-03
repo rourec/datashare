@@ -144,6 +144,40 @@
 					</execution>
 				</executions>
 			</plugin>
+                        <plugin>
+                                <groupId>org.jacoco</groupId>
+                                <artifactId>jacoco-maven-plugin</artifactId>
+                                <version>0.8.12</version>
+                                <configuration>
+                                        <excludes>
+                                                <exclude>**/*Application.class</exclude>
+                                                <exclude>**/*Controller.class</exclude>
+                                                <exclude>**/*Request.class</exclude>
+                                                <exclude>**/*Response.class</exclude>
+                                                <exclude>**/dto/**</exclude>
+                                                <exclude>**/user/User.class</exclude>
+                                                <exclude>**/file/FileTransfer.class</exclude>
+                                                <exclude>**/file/FileStatus.class</exclude>
+                                                <exclude>**/common/exception/**</exclude>
+                                                <exclude>**/security/**</exclude>
+                                        </excludes>
+                                </configuration>
+                                <executions>
+                                        <execution>
+                                                <goals>
+                                                        <goal>prepare-agent</goal>
+                                                </goals>
+                                        </execution>
+                                        <execution>
+                                                <id>report</id>
+                                                <phase>test</phase>
+                                                <goals>
+                                                        <goal>report</goal>
+                                                </goals>
+                                        </execution>
+                                </executions>
+                        </plugin>
+
 		</plugins>
 	</build>
 
