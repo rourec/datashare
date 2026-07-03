@@ -25,3 +25,6 @@ coverage/
 
 # Docker
 docker-compose.override.yml
+
+# Local uploaded files
+backend/uploads/
