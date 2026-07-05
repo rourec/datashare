@@ -1,0 +1,23 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  background: linear-gradient(
+    180deg,
+    #ffbf97 0%,
+    #e06a73 100%
+  );
+
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.app-content {
+  flex: 1;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 32px;
+}
