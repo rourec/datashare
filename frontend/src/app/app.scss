@@ -1,23 +1,15 @@
 :host {
+  min-height: 100vh;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-
-  background: linear-gradient(
-    180deg,
-    #ffbf97 0%,
-    #e06a73 100%
-  );
-
-  font-family: Arial, Helvetica, sans-serif;
+  background: linear-gradient(172.84deg, #FFB88C 2.29%, #DE6262 97.71%);
+  font-family: 'DM Sans', Arial, sans-serif;
 }
 
 .app-content {
   flex: 1;
-
   display: flex;
   justify-content: center;
   align-items: center;
-
-  padding: 32px;
+  padding: 0 24px;
 }
