@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { Card } from '../../shared/card/card';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -16,7 +17,10 @@ export class Login {
   errorMessage = '';
   successMessage = '';
 
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   onSubmit(): void {
     this.errorMessage = '';
@@ -30,5 +34,9 @@ export class Login {
         this.errorMessage = 'Email ou mot de passe incorrect.';
       }
     });
+  }
+
+  goToRegister(): void {
+    this.router.navigate(['/register']);
   }
 }

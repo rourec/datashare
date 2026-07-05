@@ -27,7 +27,7 @@
     <p class="success-message" *ngIf="successMessage">{{ successMessage }}</p>
     <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
 
-    <button type="button" class="link-button">Créer un compte</button>
+    <button type="button" class="link-button" (click)="goToRegister()">Créer un compte</button>
     <button type="submit" class="primary-button">Connexion</button>
   </form>
 </app-card>

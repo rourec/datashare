@@ -6,6 +6,11 @@ interface LoginResponse {
   token: string;
 }
 
+interface RegisterResponse {
+  uuidUser: string;
+  email: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -18,6 +23,15 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/login`, { email, password }).pipe(
       tap(response => localStorage.setItem('token', response.token))
     );
+  }
+
+  register(email: string, password: string) {
+    return this.http.post<RegisterResponse>(`${this.apiUrl}/register`, {
+      firstname: 'DataShare',
+      lastname: 'User',
+      email,
+      password
+    });
   }
 
   logout(): void {

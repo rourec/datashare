@@ -1,1 +1,44 @@
-<p>register works!</p>
+<app-card>
+  <form class="register-form" (ngSubmit)="onSubmit()">
+    <h2>Créer un compte</h2>
+
+    <label>
+      Email
+      <input
+        type="email"
+        name="email"
+        placeholder="Saisissez votre email..."
+        [(ngModel)]="email"
+        required
+      />
+    </label>
+
+    <label>
+      Mot de passe
+      <input
+        type="password"
+        name="password"
+        placeholder="Saisissez votre mot de passe..."
+        [(ngModel)]="password"
+        required
+      />
+    </label>
+
+    <label>
+      Vérification du mot de passe
+      <input
+        type="password"
+        name="confirmPassword"
+        placeholder="Saisissez le à nouveau"
+        [(ngModel)]="confirmPassword"
+        required
+      />
+    </label>
+
+    <p class="success-message" *ngIf="successMessage">{{ successMessage }}</p>
+    <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+    <button type="button" class="link-button" (click)="goToLogin()">J'ai déjà un compte</button>
+    <button type="submit" class="primary-button">Créer mon compte</button>
+  </form>
+</app-card>
