@@ -1,0 +1,261 @@
+:host {
+  display: block;
+  width: 100vw;
+  min-height: 100vh;
+  background: #FFF8F3;
+  color: #000000;
+}
+
+.workspace {
+  display: flex;
+  min-height: 100vh;
+  background: #FFF8F3;
+}
+
+.sidebar {
+  width: 259px;
+  min-height: 100vh;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(172.84deg, #FFB88C 2.29%, #DE6262 97.71%);
+  border-right: 2px solid rgba(98, 54, 26, 0.15);
+}
+
+.sidebar h1 {
+  margin: 0;
+  padding: 16px 32px;
+  color: #FFFFFF;
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-size: 32px;
+  line-height: 40px;
+}
+
+.sidebar nav {
+  flex: 1;
+  padding: 24px;
+}
+
+.sidebar a {
+  display: block;
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-weight: 600;
+  color: #803A00;
+  text-decoration: none;
+}
+
+.sidebar a.active {
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.copyright {
+  margin: 0;
+  padding: 16px 24px;
+  color: #F1E9E2;
+  font-family: 'Inter', Arial, sans-serif;
+  font-size: 16px;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.workspace-header {
+  height: 64px;
+  padding: 16px 32px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  background: #FFEEE3;
+  border-bottom: 1px solid rgba(216, 97, 28, 0.29);
+}
+
+button {
+  cursor: pointer;
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-size: 16px;
+}
+
+.dark-button {
+  height: 32px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  background: #2C2C2C;
+  color: #F3EEEA;
+}
+
+.logout-button {
+  height: 32px;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  color: #E27F29;
+}
+
+.files-section {
+  padding: 24px;
+}
+
+h2 {
+  margin: 0 0 24px;
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 40px;
+}
+
+.filters {
+  width: 220px;
+  height: 32px;
+  display: flex;
+  overflow: hidden;
+  margin-bottom: 24px;
+  border: 1px solid rgba(215, 99, 11, 0.2);
+  border-radius: 24px;
+  background: rgba(255, 193, 145, 0.16);
+}
+
+.filters button {
+  flex: 1;
+  border: none;
+  background: transparent;
+}
+
+.filters button.active {
+  background: #E77A6E;
+  color: #FFFFFF;
+}
+
+.file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.file-row {
+  min-height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 16px;
+  box-sizing: border-box;
+  border: 1px solid rgba(215, 99, 11, 0.2);
+  border-radius: 8px;
+  background: rgba(255, 193, 145, 0.05);
+}
+
+.file-icon {
+  font-size: 24px;
+}
+
+.file-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.file-info strong {
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-info span {
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-size: 14px;
+}
+
+.file-info span.expired {
+  color: #C62020;
+}
+
+.file-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.file-actions button {
+  height: 32px;
+  padding: 8px 12px;
+  border: 1px solid #FFA569;
+  border-radius: 8px;
+  background: transparent;
+  color: #E27F29;
+}
+
+.expired-text,
+.empty-state,
+.error-message {
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-size: 14px;
+}
+
+.error-message {
+  color: #C62020;
+}
+
+@media (max-width: 700px) {
+  .workspace {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+  }
+
+  .sidebar nav,
+  .copyright {
+    display: none;
+  }
+
+  .workspace-header {
+    justify-content: space-between;
+    padding: 16px 24px;
+  }
+
+  .files-section {
+    padding: 24px;
+  }
+
+  .filters {
+    width: 100%;
+  }
+
+  .file-row {
+    gap: 12px;
+  }
+
+  .file-actions button {
+    width: 32px;
+    padding: 0;
+    font-size: 0;
+  }
+
+  .file-actions button::first-letter {
+    font-size: 16px;
+  }
+}
+
+.hidden-file-input {
+  display: none;
+}
+
+.refresh-button {
+  height: 32px;
+  padding: 8px 12px;
+  border: 1px solid #FFA569;
+  border-radius: 8px;
+  background: transparent;
+  color: #E27F29;
+}

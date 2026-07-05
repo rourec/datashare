@@ -1,1 +1,60 @@
-<p>history works!</p>
+<div class="workspace">
+  <aside class="sidebar">
+    <h1>DataShare</h1>
+
+    <nav>
+      <a class="active">Mes fichiers</a>
+    </nav>
+
+    <p class="copyright">Copyright DataShare© 2025</p>
+  </aside>
+
+  <section class="content">
+    <header class="workspace-header">
+      <button class="dark-button" type="button" (click)="fileInput.click()">Téléverser un fichier</button>
+      <button class="refresh-button" type="button" (click)="loadHistory()">Actualiser</button>
+      <input #fileInput class="hidden-file-input" type="file" (change)="onFileSelected($event)" />
+
+      <button class="logout-button" (click)="logout()">Se déconnecter</button>
+    </header>
+
+    <main class="files-section">
+      <h2>Mes fichiers</h2>
+
+      <div class="filters">
+        <button class="active">Tous</button>
+        <button>Actifs</button>
+        <button>Expiré</button>
+      </div>
+
+      <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+      <div class="empty-state" *ngIf="files.length === 0 && !errorMessage">
+        Aucun fichier pour le moment.
+      </div>
+
+      <div class="file-list">
+        <article class="file-row" *ngFor="let file of files">
+          <span class="file-icon">📄</span>
+
+          <div class="file-info">
+            <strong>{{ file.originalFilename }}</strong>
+            <span [class.expired]="isExpired(file)">
+              {{ getExpirationLabel(file) }}
+            </span>
+          </div>
+
+          <div class="file-actions" *ngIf="!isExpired(file); else expiredMessage">
+            <button (click)="copyLink(file)">Copier</button>
+            <button (click)="download(file)">Ouvrir</button>
+            <button (click)="delete(file)">Supprimer</button>
+          </div>
+
+          <ng-template #expiredMessage>
+            <span class="expired-text">Ce fichier a expiré.</span>
+          </ng-template>
+        </article>
+      </div>
+    </main>
+  </section>
+</div>
