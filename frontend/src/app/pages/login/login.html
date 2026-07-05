@@ -1,16 +1,31 @@
 <app-card>
-  <form class="login-form">
+  <form class="login-form" (ngSubmit)="onSubmit()">
     <h2>Connexion</h2>
 
     <label>
       Email
-      <input type="email" placeholder="Saisissez votre email..." />
+      <input
+        type="email"
+        name="email"
+        placeholder="Saisissez votre email..."
+        [(ngModel)]="email"
+        required
+      />
     </label>
 
     <label>
       Mot de passe
-      <input type="password" placeholder="Saisissez votre mot de passe..." />
+      <input
+        type="password"
+        name="password"
+        placeholder="Saisissez votre mot de passe..."
+        [(ngModel)]="password"
+        required
+      />
     </label>
+
+    <p class="success-message" *ngIf="successMessage">{{ successMessage }}</p>
+    <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
 
     <button type="button" class="link-button">Créer un compte</button>
     <button type="submit" class="primary-button">Connexion</button>

@@ -58,3 +58,19 @@ input::placeholder {
   font-size: 16px;
   cursor: pointer;
 }
+
+.success-message,
+.error-message {
+  margin: 0;
+  text-align: center;
+  font-family: 'DM Sans', Arial, sans-serif;
+  font-size: 14px;
+}
+
+.success-message {
+  color: #2e7d32;
+}
+
+.error-message {
+  color: #c62828;
+}
