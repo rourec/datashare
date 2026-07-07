@@ -22,19 +22,19 @@
       <h2>Mes fichiers</h2>
 
       <div class="filters">
-        <button class="active">Tous</button>
-        <button>Actifs</button>
-        <button>Expiré</button>
+        <button [class.active]="filter === 'ALL'" type="button" (click)="setFilter('ALL')">Tous</button>
+        <button [class.active]="filter === 'ACTIVE'" type="button" (click)="setFilter('ACTIVE')">Actifs</button>
+        <button [class.active]="filter === 'EXPIRED'" type="button" (click)="setFilter('EXPIRED')">Expiré</button>
       </div>
 
       <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
 
-      <div class="empty-state" *ngIf="files.length === 0 && !errorMessage">
+      <div class="empty-state" *ngIf="filteredFiles.length === 0 && !errorMessage">
         Aucun fichier pour le moment.
       </div>
 
       <div class="file-list">
-        <article class="file-row" *ngFor="let file of files">
+        <article class="file-row" *ngFor="let file of filteredFiles">
           <span class="file-icon">📄</span>
 
           <div class="file-info">

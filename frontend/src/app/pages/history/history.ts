@@ -4,6 +4,8 @@ import { Router } from '@angular/router';
 import { FileHistory, FileService } from '../../core/services/file.service';
 import { AuthService } from '../../core/services/auth.service';
 
+type FileFilter = 'ALL' | 'ACTIVE' | 'EXPIRED';
+
 @Component({
   selector: 'app-history',
   imports: [CommonModule],
@@ -12,6 +14,7 @@ import { AuthService } from '../../core/services/auth.service';
 })
 export class History implements OnInit {
   files: FileHistory[] = [];
+  filter: FileFilter = 'ALL';
   errorMessage = '';
 
   constructor(
@@ -22,6 +25,22 @@ export class History implements OnInit {
 
   ngOnInit(): void {
     this.loadHistory();
+  }
+
+  get filteredFiles(): FileHistory[] {
+    if (this.filter === 'ACTIVE') {
+      return this.files.filter(file => !this.isExpired(file));
+    }
+
+    if (this.filter === 'EXPIRED') {
+      return this.files.filter(file => this.isExpired(file));
+    }
+
+    return this.files;
+  }
+
+  setFilter(filter: FileFilter): void {
+    this.filter = filter;
   }
 
   loadHistory(): void {
