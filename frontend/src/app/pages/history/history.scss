@@ -259,3 +259,19 @@ h2 {
   background: transparent;
   color: #E27F29;
 }
+
+.logout-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logout-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+:host {
+  width: 100vw;
+  min-height: 100vh;
+}

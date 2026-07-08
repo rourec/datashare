@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FileHistory, FileService } from '../../core/services/file.service';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -8,7 +8,7 @@ type FileFilter = 'ALL' | 'ACTIVE' | 'EXPIRED';
 
 @Component({
   selector: 'app-history',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './history.html',
   styleUrl: './history.scss'
 })
@@ -52,27 +52,6 @@ export class History implements OnInit {
       },
       error: () => {
         this.errorMessage = 'Impossible de charger vos fichiers.';
-      }
-    });
-  }
-
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-
-    if (!file) {
-      return;
-    }
-
-    this.errorMessage = '';
-
-    this.fileService.upload(file, 7).subscribe({
-      next: () => {
-        input.value = '';
-        this.loadHistory();
-      },
-      error: () => {
-        this.errorMessage = 'Impossible de téléverser le fichier.';
       }
     });
   }

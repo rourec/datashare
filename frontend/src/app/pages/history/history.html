@@ -11,11 +11,8 @@
 
   <section class="content">
     <header class="workspace-header">
-      <button class="dark-button" type="button" (click)="fileInput.click()">Téléverser un fichier</button>
-      <button class="refresh-button" type="button" (click)="loadHistory()">Actualiser</button>
-      <input #fileInput class="hidden-file-input" type="file" (change)="onFileSelected($event)" />
-
-      <button class="logout-button" (click)="logout()">Se déconnecter</button>
+      <button class="dark-button" type="button" routerLink="/upload">Ajouter des fichiers</button>
+      <button class="logout-button" type="button" (click)="logout()"><span class="logout-icon">↪</span>Déconnexion</button>
     </header>
 
     <main class="files-section">
