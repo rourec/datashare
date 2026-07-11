@@ -1,10 +1,11 @@
 import { Routes } from '@angular/router';
 import { Login } from './pages/login/login';
 import { Register } from './pages/register/register';
+import { Accueil } from './pages/accueil/accueil';
 import { History } from './pages/history/history';
 import { Upload } from './pages/upload/upload';
+import { UploadSuccess } from './pages/upload-success/upload-success';
 import { Download } from './pages/download/download';
-import { Accueil } from './pages/accueil/accueil';
 
 export const routes: Routes = [
   {
@@ -16,12 +17,12 @@ export const routes: Routes = [
     component: Login
   },
   {
-    path: 'accueil',
-    component: Accueil
-  },
-  {
     path: 'register',
     component: Register
+  },
+  {
+    path: 'accueil',
+    component: Accueil
   },
   {
     path: 'mon-espace',
@@ -30,6 +31,10 @@ export const routes: Routes = [
   {
     path: 'upload',
     component: Upload
+  },
+  {
+    path: 'upload-success',
+    component: UploadSuccess
   },
   {
     path: 'download/:token',

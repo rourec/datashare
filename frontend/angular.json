@@ -68,7 +68,12 @@
               "buildTarget": "frontend:build:development"
             }
           },
-          "defaultConfiguration": "development"
+          "defaultConfiguration": "development",
+          "options": {
+            "allowedHosts": [
+              "datashare.fr"
+            ]
+          }
         },
         "test": {
           "builder": "@angular/build:unit-test"

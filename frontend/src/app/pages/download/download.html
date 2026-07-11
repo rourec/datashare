@@ -1,0 +1,35 @@
+<app-card>
+  <section class="download-card">
+    <h2>Télécharger un fichier</h2>
+
+    <p class="loading" *ngIf="loading">Chargement du fichier...</p>
+
+    <div class="error-callout" *ngIf="!loading && errorMessage">
+      ⚠️ {{ errorMessage }}
+    </div>
+
+    <ng-container *ngIf="!loading && metadata">
+      <div class="file-summary">
+        <span class="file-icon">📄</span>
+
+        <div>
+          <strong>{{ metadata.originalFilename }}</strong>
+          <span>{{ formatSize(metadata.size) }}</span>
+        </div>
+      </div>
+
+      <div class="info-callout" [class.warning]="isExpired()">
+        {{ getExpirationLabel() }}
+      </div>
+
+      <button
+        class="download-button"
+        type="button"
+        [disabled]="isExpired()"
+        (click)="download()"
+      >
+        Télécharger
+      </button>
+    </ng-container>
+  </section>
+</app-card>

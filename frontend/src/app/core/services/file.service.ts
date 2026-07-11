@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 export interface FileHistory {
   uuidFile: string;
@@ -12,6 +13,16 @@ export interface FileHistory {
   expiresAt: string;
 }
 
+export interface FileUploadResponse {
+  uuidFile: string;
+  originalFilename: string;
+  size: number;
+  contentType: string;
+  downloadToken: string;
+  downloadUrl: string;
+  expiresAt: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -21,24 +32,29 @@ export class FileService {
 
   constructor(private http: HttpClient) {}
 
-  history() {
+  history(): Observable<FileHistory[]> {
     return this.http.get<FileHistory[]>(`${this.apiUrl}/history`, {
       headers: this.authHeaders()
     });
   }
 
-  upload(file: File, expirationDays = 7) {
+  upload(file: File, expirationDays = 7): Observable<FileUploadResponse> {
     const formData = new FormData();
+
     formData.append('file', file);
     formData.append('expirationDays', String(expirationDays));
 
-    return this.http.post(`${this.apiUrl}/upload`, formData, {
-      headers: this.authHeaders()
-    });
+    return this.http.post<FileUploadResponse>(
+      `${this.apiUrl}/upload`,
+      formData,
+      {
+        headers: this.authHeaders()
+      }
+    );
   }
 
-  delete(uuidFile: string) {
-    return this.http.delete(`${this.apiUrl}/${uuidFile}`, {
+  delete(uuidFile: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${uuidFile}`, {
       headers: this.authHeaders()
     });
   }

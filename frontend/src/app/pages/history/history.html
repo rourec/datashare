@@ -24,6 +24,10 @@
         <button [class.active]="filter === 'EXPIRED'" type="button" (click)="setFilter('EXPIRED')">Expiré</button>
       </div>
 
+      <p class="loading-message" *ngIf="loading">
+        Chargement des fichiers...
+      </p>
+
       <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
 
       <div class="empty-state" *ngIf="filteredFiles.length === 0 && !errorMessage">
