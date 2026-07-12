@@ -70,8 +70,10 @@ export class Download implements OnInit {
         error: (error) => {
           console.error('DOWNLOAD METADATA ERROR', error);
 
-          this.errorMessage =
-            "Ce fichier n'est plus disponible ou n'existe pas.";
+          if (error?.status === 410) {
+            this.errorMessage =
+              "Ce fichier n'est plus disponible en téléchargement car il a expiré.";
+          }
 
           this.loading = false;
           this.changeDetectorRef.detectChanges();

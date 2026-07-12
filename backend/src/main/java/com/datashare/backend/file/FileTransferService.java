@@ -7,6 +7,8 @@ import com.datashare.backend.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -65,14 +67,26 @@ public class FileTransferService {
 
     public FileDownloadMetadataResponse getDownloadMetadata(String downloadToken) {
         FileTransfer file = fileTransferRepository.findByDownloadToken(downloadToken)
-                .orElseThrow(() -> new IllegalArgumentException("Download token not found"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Download token not found"
+                ));
 
-        if (file.getStatus() != FileStatus.ACTIVE) {
-            throw new IllegalStateException("File is not available");
+        if (
+                file.getStatus() == FileStatus.EXPIRED
+                || file.getExpiresAt().isBefore(LocalDateTime.now())
+        ) {
+            throw new ResponseStatusException(
+                    HttpStatus.GONE,
+                    "Download link has expired"
+            );
         }
 
-        if (file.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Download link has expired");
+        if (file.getStatus() == FileStatus.DELETED) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "File is not available"
+            );
         }
 
         return new FileDownloadMetadataResponse(
@@ -85,14 +99,26 @@ public class FileTransferService {
 
     public Resource download(String downloadToken) {
         FileTransfer file = fileTransferRepository.findByDownloadToken(downloadToken)
-                .orElseThrow(() -> new IllegalArgumentException("Download token not found"));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Download token not found"
+                ));
 
-        if (file.getStatus() != FileStatus.ACTIVE) {
-            throw new IllegalStateException("File is not available");
+        if (
+                file.getStatus() == FileStatus.EXPIRED
+                || file.getExpiresAt().isBefore(LocalDateTime.now())
+        ) {
+            throw new ResponseStatusException(
+                    HttpStatus.GONE,
+                    "Download link has expired"
+            );
         }
 
-        if (file.getExpiresAt().isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Download link has expired");
+        if (file.getStatus() == FileStatus.DELETED) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "File is not available"
+            );
         }
 
         return localFileStorageService.loadAsResource(file.getStoredFilename());
