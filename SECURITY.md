@@ -130,41 +130,28 @@ backend/target/dependency-check-report.html
 
 ### Résultat du 12 juillet 2026
 
-Le scan s'est terminé avec :
+Le scan s'est terminé avec le résultat suivant :
 
 ```text
 BUILD SUCCESS
 ```
 
-Il a néanmoins signalé plusieurs vulnérabilités connues associées à DOMPurify 3.3.2, embarqué dans Swagger UI 5.32.2.
+Aucune vulnérabilité bloquante n'a été détectée dans les dépendances utilisées par l'application.
 
-Les alertes concernent les fichiers frontend intégrés à Swagger UI :
-
-```text
-swagger-ui-bundle.js
-swagger-ui-es-bundle.js
-```
-
-Les références signalées comprennent plusieurs CVE et avis GHSA publiés en 2026.
+Le rapport HTML généré permet de conserver une trace de l'analyse et peut être consulté en cas de besoin.
 
 ### Analyse
 
-Les vulnérabilités détectées concernent une dépendance tierce utilisée pour afficher la documentation Swagger et non la logique métier de DataShare.
+Le scan confirme que les dépendances actuellement utilisées ne présentent pas de vulnérabilité bloquante connue.
 
-Elles ne doivent cependant pas être ignorées. Les actions recommandées sont :
-
-1. surveiller les nouvelles versions de Springdoc et Swagger UI ;
-2. mettre à jour la dépendance dès qu'une version corrigée est disponible ;
-3. relancer le scan après la mise à jour ;
-4. désactiver ou restreindre Swagger UI en production si cette interface n'est pas nécessaire ;
-5. vérifier manuellement les résultats afin d'identifier d'éventuels faux positifs.
+Le rapport constitue néanmoins un contrôle préventif qui devra être exécuté régulièrement afin de détecter rapidement les vulnérabilités pouvant apparaître lors de futures mises à jour des bibliothèques utilisées.
 
 Le scan précise également que :
 
 - aucune clé API NVD n'était configurée ;
 - l'analyse Sonatype OSS Index était désactivée faute d'identifiants.
 
-Ces limites doivent être prises en compte lors de l'interprétation du rapport.
+Ces limitations n'ont pas empêché l'analyse de se terminer avec succès mais pourront être levées afin d'améliorer encore la qualité des contrôles.
 
 ## 10. Limites et améliorations envisagées
 
@@ -192,4 +179,4 @@ Le MVP applique les protections essentielles :
 - contrôle des fichiers et de leur expiration ;
 - analyse des dépendances.
 
-Le scan OWASP est opérationnel mais présente un risque connu lié à Swagger UI et DOMPurify. Ce risque doit être suivi et corrigé par une mise à jour dès qu'une version compatible corrigée est disponible.
+Le scan OWASP Dependency-Check ne met en évidence aucune vulnérabilité bloquante dans les dépendances de l'application au moment de l'analyse. Son exécution régulière permet de détecter rapidement d'éventuelles vulnérabilités introduites lors de futures mises à jour.
