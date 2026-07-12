@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Card } from '../../shared/card/card';
@@ -20,7 +20,8 @@ export class Register {
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private changeDetectorRef: ChangeDetectorRef
   ) {}
 
   onSubmit(): void {
@@ -35,10 +36,15 @@ export class Register {
     this.authService.register(this.email, this.password).subscribe({
       next: () => {
         this.successMessage = 'Compte créé avec succès.';
-        setTimeout(() => this.router.navigate(['/login']), 800);
+        this.changeDetectorRef.detectChanges();
+
+        setTimeout(() => {
+          this.router.navigate(['/login']);
+        }, 800);
       },
       error: () => {
         this.errorMessage = 'Impossible de créer le compte.';
+        this.changeDetectorRef.detectChanges();
       }
     });
   }
