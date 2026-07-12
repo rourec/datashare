@@ -73,6 +73,9 @@ export class Download implements OnInit {
           if (error?.status === 410) {
             this.errorMessage =
               "Ce fichier n'est plus disponible en téléchargement car il a expiré.";
+          } else {
+            this.errorMessage =
+              "Ce fichier n'est plus disponible ou n'existe pas.";
           }
 
           this.loading = false;

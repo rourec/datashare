@@ -146,7 +146,7 @@ describe('Upload', () => {
 
     expect(component.loading).toBe(false);
     expect(component.errorMessage).toBe(
-      'Le fichier dépasse la taille maximale autorisée.'
+      'La taille des fichiers est limitée à 1 Go.'
     );
   });
 

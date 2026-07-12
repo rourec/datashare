@@ -102,6 +102,24 @@ describe('Download', () => {
     );
   });
 
+  it('should display a specific message for an expired download link', () => {
+    const component = createComponent('expired-token');
+
+    httpMock.get.mockReturnValue(
+      throwError(() => ({
+        status: 410
+      }))
+    );
+
+    component.ngOnInit();
+
+    expect(component.metadata).toBeUndefined();
+    expect(component.loading).toBe(false);
+    expect(component.errorMessage).toBe(
+      "Ce fichier n'est plus disponible en téléchargement car il a expiré."
+    );
+  });
+
   it('should detect an expired file', () => {
     const component = createComponent('download-token');
 
