@@ -317,10 +317,6 @@ Un lien expiré retourne automatiquement le code HTTP :
 
 ---
 
-# Auteur
-
-Projet réalisé dans le cadre de la formation **Expert DevOps** d'OpenClassrooms.
-
 ## Documentation de l'API
 
 Lorsque le back-end est démarré, la documentation interactive de l'API est disponible avec Swagger UI :
