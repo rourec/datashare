@@ -63,6 +63,10 @@ export class UploadSuccess implements OnInit {
     return `Félicitations, ton fichier sera conservé chez nous pendant ${days} jours !`;
   }
 
+  goToLogin(): void {
+    this.router.navigate(['/login']);
+  }
+
   copyLink(): void {
     if (!this.uploadResult) {
       return;

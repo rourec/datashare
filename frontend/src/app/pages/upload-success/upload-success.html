@@ -1,38 +1,70 @@
-<section class="success-card" *ngIf="uploadResult">
-  <h2>Ajouter un fichier</h2>
+<div class="upload-success-page">
+  <header class="upload-success-header">
+    <h1>DataShare</h1>
 
-  <div class="file-row">
-    <span class="file-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24">
-        <path d="M6 2h9l5 5v15H6V2z"></path>
-        <path d="M14 2v6h6"></path>
-        <path d="M8 14h8"></path>
-        <path d="M8 18h8"></path>
-      </svg>
-    </span>
+    <button
+      class="login-button"
+      type="button"
+      (click)="goToLogin()"
+    >
+      Se connecter
+    </button>
+  </header>
 
-    <div class="file-details">
-      <span class="file-name">{{ uploadResult.originalFilename }}</span>
-      <span class="file-size">{{ formatFileSize(uploadResult.size) }}</span>
-    </div>
-  </div>
+  <main class="upload-success-main">
+    <section
+      class="success-card"
+      *ngIf="uploadResult"
+    >
+      <h2>Ajouter un fichier</h2>
 
-  <div class="result-content">
-    <p>{{ getExpirationMessage() }}</p>
+      <div class="file-row">
+        <span class="file-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M6 2h9l5 5v15H6V2z"></path>
+            <path d="M14 2v6h6"></path>
+            <path d="M8 14h8"></path>
+            <path d="M8 18h8"></path>
+          </svg>
+        </span>
 
-    <div class="generated-link">
-      <a [href]="uploadResult.downloadUrl" target="_blank" rel="noopener">
-        {{ uploadResult.downloadUrl }}
-      </a>
-    </div>
-  </div>
+        <div class="file-details">
+          <span class="file-name">
+            {{ uploadResult.originalFilename }}
+          </span>
 
-  <button class="copy-button" type="button" (click)="copyLink()">
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="8" y="8" width="11" height="11" rx="2"></rect>
-      <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path>
-    </svg>
+          <span class="file-size">
+            {{ formatFileSize(uploadResult.size) }}
+          </span>
+        </div>
+      </div>
 
-    {{ copied ? 'Lien copié' : 'Copier le lien' }}
-  </button>
-</section>
+      <div class="result-content">
+        <p>{{ getExpirationMessage() }}</p>
+
+        <div class="generated-link">
+          <a
+            [href]="uploadResult.downloadUrl"
+            target="_blank"
+            rel="noopener"
+          >
+            {{ uploadResult.downloadUrl }}
+          </a>
+        </div>
+      </div>
+
+      <button
+        class="copy-button"
+        type="button"
+        (click)="copyLink()"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <rect x="8" y="8" width="11" height="11" rx="2"></rect>
+          <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path>
+        </svg>
+
+        {{ copied ? 'Lien copié' : 'Copier le lien' }}
+      </button>
+    </section>
+  </main>
+</div>

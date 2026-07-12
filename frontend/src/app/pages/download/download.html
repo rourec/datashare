@@ -1,35 +1,66 @@
-<app-card>
-  <section class="download-card">
-    <h2>Télécharger un fichier</h2>
+<div class="download-page">
+  <header class="download-header">
+    <h1>DataShare</h1>
 
-    <p class="loading" *ngIf="loading">Chargement du fichier...</p>
+    <button
+      class="login-button"
+      type="button"
+      (click)="goToLogin()"
+    >
+      Se connecter
+    </button>
+  </header>
 
-    <div class="error-callout" *ngIf="!loading && errorMessage">
-      ⚠️ {{ errorMessage }}
-    </div>
+  <main class="download-main">
+    <app-card>
+      <section class="download-card">
+        <h2>Télécharger un fichier</h2>
 
-    <ng-container *ngIf="!loading && metadata">
-      <div class="file-summary">
-        <span class="file-icon">📄</span>
+        <p class="loading" *ngIf="loading">
+          Chargement du fichier...
+        </p>
 
-        <div>
-          <strong>{{ metadata.originalFilename }}</strong>
-          <span>{{ formatSize(metadata.size) }}</span>
+        <div
+          class="error-callout"
+          *ngIf="!loading && errorMessage"
+        >
+          ⚠️ {{ errorMessage }}
         </div>
-      </div>
 
-      <div class="info-callout" [class.warning]="isExpired()">
-        {{ getExpirationLabel() }}
-      </div>
+        <ng-container *ngIf="!loading && metadata">
+          <div class="file-summary">
+            <span class="file-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24">
+                <path d="M6 2h9l5 5v15H6V2z"></path>
+                <path d="M14 2v6h6"></path>
+                <path d="M8 14h8"></path>
+                <path d="M8 18h8"></path>
+              </svg>
+            </span>
 
-      <button
-        class="download-button"
-        type="button"
-        [disabled]="isExpired()"
-        (click)="download()"
-      >
-        Télécharger
-      </button>
-    </ng-container>
-  </section>
-</app-card>
+            <div>
+              <strong>{{ metadata.originalFilename }}</strong>
+              <span>{{ formatSize(metadata.size) }}</span>
+            </div>
+          </div>
+
+          <div
+            class="info-callout"
+            [class.warning]="isExpired()"
+          >
+            {{ getExpirationLabel() }}
+          </div>
+
+          <button
+            class="download-button"
+            type="button"
+            [disabled]="isExpired()"
+            (click)="download()"
+          >
+            Télécharger
+          </button>
+        </ng-container>
+      </section>
+    </app-card>
+  </main>
+</div>

@@ -17,6 +17,8 @@ import {
   styleUrl: './upload.scss'
 })
 export class Upload {
+  private readonly maxFileSize = 1024 * 1024 * 1024;
+
   selectedFile?: File;
   expirationDays = 7;
   downloadUrl = '';
@@ -30,27 +32,56 @@ export class Upload {
     private changeDetectorRef: ChangeDetectorRef
   ) {}
 
+  get fileTooLarge(): boolean {
+    return Boolean(
+      this.selectedFile
+      && this.selectedFile.size > this.maxFileSize
+    );
+  }
+
+  get uploadDisabled(): boolean {
+    return this.loading
+      || !this.selectedFile
+      || this.fileTooLarge;
+  }
+
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
 
     this.selectedFile = input.files?.[0];
-    this.errorMessage = '';
     this.downloadUrl = '';
     this.uploadCompleted = false;
+
+    if (this.fileTooLarge) {
+      this.errorMessage =
+        'La taille des fichiers est limitée à 1 Go.';
+    } else {
+      this.errorMessage = '';
+    }
 
     this.changeDetectorRef.markForCheck();
   }
 
   formatFileSize(size: number): string {
+    if (size < 1024) {
+      return `${size} o`;
+    }
+
     if (size < 1024 * 1024) {
-      return `${(size / 1024).toFixed(1).replace('.', ',')} Ko`;
+      return `${(size / 1024)
+        .toFixed(1)
+        .replace('.', ',')} Ko`;
     }
 
     if (size < 1024 * 1024 * 1024) {
-      return `${(size / (1024 * 1024)).toFixed(1).replace('.', ',')} Mo`;
+      return `${(size / (1024 * 1024))
+        .toFixed(1)
+        .replace('.', ',')} Mo`;
     }
 
-    return `${(size / (1024 * 1024 * 1024)).toFixed(1).replace('.', ',')} Go`;
+    return `${(size / (1024 * 1024 * 1024))
+      .toFixed(1)
+      .replace('.', ',')} Go`;
   }
 
   upload(): void {
@@ -60,48 +91,67 @@ export class Upload {
       return;
     }
 
+    if (this.fileTooLarge) {
+      this.errorMessage =
+        'La taille des fichiers est limitée à 1 Go.';
+      this.changeDetectorRef.detectChanges();
+      return;
+    }
+
     this.errorMessage = '';
     this.loading = true;
     this.changeDetectorRef.detectChanges();
 
-    this.fileService.upload(this.selectedFile, this.expirationDays).subscribe({
-      next: (response: FileUploadResponse) => {
-        const publicDownloadUrl =
-          `http://datashare.fr:4200/download/${response.downloadToken}`;
+    this.fileService
+      .upload(this.selectedFile, this.expirationDays)
+      .subscribe({
+        next: (response: FileUploadResponse) => {
+          const publicDownloadUrl =
+            `http://datashare.fr:4200/download/`
+            + response.downloadToken;
 
-        sessionStorage.setItem(
-          'lastUploadResult',
-          JSON.stringify({
-            originalFilename: response.originalFilename,
-            size: response.size,
-            expirationDays: this.expirationDays,
-            downloadUrl: publicDownloadUrl
-          })
-        );
+          sessionStorage.setItem(
+            'lastUploadResult',
+            JSON.stringify({
+              originalFilename: response.originalFilename,
+              size: response.size,
+              expirationDays: this.expirationDays,
+              downloadUrl: publicDownloadUrl
+            })
+          );
 
-        this.loading = false;
-        this.changeDetectorRef.detectChanges();
+          this.loading = false;
+          this.changeDetectorRef.detectChanges();
 
-        this.router.navigate(['/upload-success']);
-      },
-      error: (error) => {
-        console.error('UPLOAD ERROR', error);
+          this.router.navigate(['/upload-success']);
+        },
+        error: (error) => {
+          console.error('UPLOAD ERROR', error);
 
-        this.loading = false;
-        this.errorMessage = this.getUploadErrorMessage(error);
+          this.loading = false;
+          this.errorMessage =
+            this.getUploadErrorMessage(error);
 
-        this.changeDetectorRef.detectChanges();
-      }
-    });
+          this.changeDetectorRef.detectChanges();
+        }
+      });
+  }
+
+  goToLogin(): void {
+    this.router.navigate(['/login']);
   }
 
   private getUploadErrorMessage(error: any): string {
     if (error?.status === 413) {
-      return 'Le fichier dépasse la taille maximale autorisée.';
+      return 'La taille des fichiers est limitée à 1 Go.';
     }
 
-    if (error?.status === 401 || error?.status === 403) {
-      return 'Votre session a expiré. Veuillez vous reconnecter.';
+    if (
+      error?.status === 401
+      || error?.status === 403
+    ) {
+      return 'Votre session a expiré. '
+        + 'Veuillez vous reconnecter.';
     }
 
     if (error?.error?.message) {
@@ -109,9 +159,5 @@ export class Upload {
     }
 
     return 'Impossible de téléverser ce fichier.';
-  }
-
-  copyLink(): void {
-    navigator.clipboard.writeText(this.downloadUrl);
   }
 }

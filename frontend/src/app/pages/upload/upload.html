@@ -1,85 +1,125 @@
-<div class="upload-card" [class.success-card]="uploadCompleted">
-  <h2>Ajouter un fichier</h2>
-
-  <ng-container *ngIf="!uploadCompleted; else uploadSuccess">
-    <input #fileInput class="hidden-file-input" type="file" (change)="onFileSelected($event)" />
-
-    <div class="selected-file">
-      <span class="file-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24">
-          <path d="M6 2h9l5 5v15H6V2z"></path>
-          <path d="M14 2v6h6"></path>
-          <path d="M8 14h8"></path>
-          <path d="M8 18h8"></path>
-        </svg>
-      </span>
-
-      <div class="file-details">
-        <span class="file-name" *ngIf="selectedFile; else noFile">{{ selectedFile.name }}</span>
-        <ng-template #noFile>
-          <span class="file-name muted">Aucun fichier sélectionné</span>
-        </ng-template>
-        <span class="file-size" *ngIf="selectedFile">{{ formatFileSize(selectedFile.size) }}</span>
-      </div>
-
-      <button class="change-button" type="button" (click)="fileInput.click()">Changer</button>
-    </div>
-
-    <label class="field">
-      Mot de passe
-      <input type="password" placeholder="Optionnel" />
-    </label>
-
-    <label class="field">
-      Expiration
-      <select [(ngModel)]="expirationDays">
-        <option [ngValue]="1">Une journée</option>
-        <option [ngValue]="2">2 jours</option>
-        <option [ngValue]="3">3 jours</option>
-        <option [ngValue]="4">4 jours</option>
-        <option [ngValue]="5">5 jours</option>
-        <option [ngValue]="6">6 jours</option>
-        <option [ngValue]="7">Une semaine</option>
-      </select>
-    </label>
-
-    <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+<div class="upload-page">
+  <header class="upload-header">
+    <h1>DataShare</h1>
 
     <button
+      class="login-button"
       type="button"
-      class="upload-button"
-      (click)="upload()"
-      [disabled]="loading"
+      (click)="goToLogin()"
     >
-      {{ loading ? 'Téléversement...' : '☁ Téléverser' }}
+      Se connecter
     </button>
-  </ng-container>
+  </header>
 
-  <ng-template #uploadSuccess>
-    <div class="selected-file success-file">
-      <span class="file-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24">
-          <path d="M6 2h9l5 5v15H6V2z"></path>
-          <path d="M14 2v6h6"></path>
-          <path d="M8 14h8"></path>
-          <path d="M8 18h8"></path>
-        </svg>
-      </span>
+  <main class="upload-main">
+    <div class="upload-card">
+      <h2>Ajouter un fichier</h2>
 
-      <div class="file-details">
-        <span class="file-name">{{ selectedFile?.name }}</span>
-        <span class="file-size" *ngIf="selectedFile">{{ formatFileSize(selectedFile.size) }}</span>
+      <input
+        #fileInput
+        data-cy="file-input"
+        class="hidden-file-input"
+        type="file"
+        (change)="onFileSelected($event)"
+      />
+
+      <div class="selected-file">
+        <div class="file-main">
+          <span class="file-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M6 2h9l5 5v15H6V2z"></path>
+              <path d="M14 2v6h6"></path>
+              <path d="M8 14h8"></path>
+              <path d="M8 18h8"></path>
+            </svg>
+          </span>
+
+          <div class="file-details">
+            <span
+              class="file-name"
+              *ngIf="selectedFile; else noFile"
+            >
+              {{ selectedFile.name }}
+            </span>
+
+            <ng-template #noFile>
+              <span class="file-name muted">
+                Aucun fichier sélectionné
+              </span>
+            </ng-template>
+
+            <span
+              class="file-size"
+              [class.file-size-error]="fileTooLarge"
+              *ngIf="selectedFile"
+            >
+              {{ formatFileSize(selectedFile.size) }}
+            </span>
+          </div>
+        </div>
+
+        <button
+          class="change-button"
+          type="button"
+          (click)="fileInput.click()"
+        >
+          Changer
+        </button>
       </div>
-    </div>
 
-    <div class="success-content">
-      <p>Félicitations, ton fichier sera conservé chez nous pendant une semaine !</p>
+      <p
+        class="file-limit-error"
+        *ngIf="fileTooLarge"
+      >
+        La taille des fichiers est limitée à 1 Go.
+      </p>
 
-      <div class="generated-link">
-        <a [href]="downloadUrl" target="_blank">{{ downloadUrl }}</a>
+      <div class="form-fields">
+        <label class="field">
+          Expiration
+
+          <select
+            data-cy="expiration-days"
+            [(ngModel)]="expirationDays"
+          >
+            <option [ngValue]="1">Une journée</option>
+            <option [ngValue]="2">2 jours</option>
+            <option [ngValue]="3">3 jours</option>
+            <option [ngValue]="4">4 jours</option>
+            <option [ngValue]="5">5 jours</option>
+            <option [ngValue]="6">6 jours</option>
+            <option [ngValue]="7">Une semaine</option>
+          </select>
+        </label>
       </div>
-    </div>
 
-    <button type="button" class="copy-button" (click)="copyLink()">⧉ Copier le lien</button>
-  </ng-template>
+      <p
+        class="error-message"
+        *ngIf="errorMessage && !fileTooLarge"
+      >
+        {{ errorMessage }}
+      </p>
+
+      <button
+        type="button"
+        data-cy="upload-submit"
+        class="upload-button"
+        (click)="upload()"
+        [disabled]="uploadDisabled"
+      >
+        <span class="upload-cloud" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M16 16l-4-4-4 4M12 12v9"></path>
+            <path
+              d="M20.4 17.5A5 5 0 0 0 18 8.2
+                 7 7 0 0 0 4.3 10.5
+                 4 4 0 0 0 5 18h2"
+            ></path>
+          </svg>
+        </span>
+
+        {{ loading ? 'Téléversement...' : 'Téléverser' }}
+      </button>
+    </div>
+  </main>
 </div>

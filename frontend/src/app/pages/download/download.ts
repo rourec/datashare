@@ -4,7 +4,7 @@ import {
   Component,
   OnInit
 } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Card } from '../../shared/card/card';
 
@@ -32,7 +32,8 @@ export class Download implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private http: HttpClient,
-    private changeDetectorRef: ChangeDetectorRef
+    private changeDetectorRef: ChangeDetectorRef,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -46,6 +47,10 @@ export class Download implements OnInit {
     }
 
     this.loadMetadata();
+  }
+
+  goToLogin(): void {
+    this.router.navigate(['/login']);
   }
 
   loadMetadata(): void {
