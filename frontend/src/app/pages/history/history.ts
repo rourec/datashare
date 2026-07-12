@@ -26,6 +26,9 @@ export class History implements OnInit {
   errorMessage = '';
   loading = false;
 
+  mobileMenuOpen = false;
+  openedFileMenu?: string;
+
   constructor(
     private fileService: FileService,
     private authService: AuthService,
@@ -51,6 +54,32 @@ export class History implements OnInit {
 
   setFilter(filter: FileFilter): void {
     this.filter = filter;
+    this.openedFileMenu = undefined;
+    this.changeDetectorRef.markForCheck();
+  }
+
+  toggleMobileMenu(): void {
+    this.mobileMenuOpen = !this.mobileMenuOpen;
+    this.openedFileMenu = undefined;
+    this.changeDetectorRef.markForCheck();
+  }
+
+  closeMobileMenu(): void {
+    this.mobileMenuOpen = false;
+    this.changeDetectorRef.markForCheck();
+  }
+
+  toggleFileMenu(uuidFile: string): void {
+    this.openedFileMenu =
+      this.openedFileMenu === uuidFile
+        ? undefined
+        : uuidFile;
+
+    this.changeDetectorRef.markForCheck();
+  }
+
+  closeFileMenu(): void {
+    this.openedFileMenu = undefined;
     this.changeDetectorRef.markForCheck();
   }
 
@@ -81,26 +110,29 @@ export class History implements OnInit {
   }
 
   download(file: FileHistory): void {
+    this.closeFileMenu();
     window.open(this.fileService.getDownloadUrl(file), '_blank');
   }
 
   copyLink(file: FileHistory): void {
-    navigator.clipboard.writeText(this.fileService.getDownloadUrl(file));
+    this.closeFileMenu();
+    navigator.clipboard.writeText(
+      this.fileService.getDownloadUrl(file)
+    );
   }
 
   delete(file: FileHistory): void {
     this.errorMessage = '';
+    this.closeFileMenu();
 
     this.fileService.delete(file.uuidFile).subscribe({
       next: () => {
-        // Retrait immédiat de la liste, sans attendre un second appel HTTP.
         this.files = this.files.filter(
           currentFile => currentFile.uuidFile !== file.uuidFile
         );
 
         this.changeDetectorRef.detectChanges();
 
-        // Resynchronisation silencieuse avec le backend.
         this.loadHistory();
       },
       error: (error) => {
@@ -117,7 +149,8 @@ export class History implements OnInit {
   }
 
   isExpired(file: FileHistory): boolean {
-    return file.status !== 'ACTIVE' || new Date(file.expiresAt) < new Date();
+    return file.status !== 'ACTIVE'
+      || new Date(file.expiresAt) < new Date();
   }
 
   getExpirationLabel(file: FileHistory): string {
@@ -127,6 +160,7 @@ export class History implements OnInit {
 
     const expiresAt = new Date(file.expiresAt).getTime();
     const now = Date.now();
+
     const diffDays = Math.ceil(
       (expiresAt - now) / (1000 * 60 * 60 * 24)
     );

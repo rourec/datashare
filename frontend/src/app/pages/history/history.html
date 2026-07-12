@@ -1,59 +1,247 @@
 <div class="workspace">
-  <aside class="sidebar">
-    <h1>DataShare</h1>
+
+  <div
+    class="mobile-overlay"
+    *ngIf="mobileMenuOpen"
+    (click)="closeMobileMenu()"
+    aria-hidden="true"
+  ></div>
+
+  <aside
+    class="sidebar"
+    [class.mobile-open]="mobileMenuOpen"
+  >
+    <div class="sidebar-title">
+      <button
+        class="close-menu-button"
+        type="button"
+        aria-label="Fermer le menu"
+        (click)="closeMobileMenu()"
+      >
+        ×
+      </button>
+
+      <h1>DataShare</h1>
+    </div>
 
     <nav>
-      <a class="active">Mes fichiers</a>
+      <a class="active" (click)="closeMobileMenu()">
+        Mes fichiers
+      </a>
     </nav>
 
-    <p class="copyright">Copyright DataShare© 2025</p>
+    <p class="copyright">
+      Copyright DataShare© 2025
+    </p>
   </aside>
 
-  <section class="content">
+  <section
+    class="content"
+    (click)="closeFileMenu()"
+  >
+    <header class="mobile-header">
+      <button
+        class="menu-button"
+        type="button"
+        aria-label="Ouvrir le menu"
+        (click)="$event.stopPropagation(); toggleMobileMenu()"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <div class="mobile-profile">
+        <span class="avatar" aria-hidden="true">
+          D
+        </span>
+
+        <span class="profile-name">
+          Mon compte
+        </span>
+      </div>
+    </header>
+
     <header class="workspace-header">
-      <button class="dark-button" type="button" routerLink="/upload">Ajouter des fichiers</button>
-      <button class="logout-button" type="button" (click)="logout()"><span class="logout-icon">↪</span>Déconnexion</button>
+      <button
+        class="dark-button"
+        type="button"
+        routerLink="/upload"
+      >
+        Ajouter des fichiers
+      </button>
+
+      <button
+        class="logout-button"
+        type="button"
+        (click)="logout()"
+      >
+        <span class="logout-icon">↪</span>
+        Déconnexion
+      </button>
     </header>
 
     <main class="files-section">
       <h2>Mes fichiers</h2>
 
       <div class="filters">
-        <button [class.active]="filter === 'ALL'" type="button" (click)="setFilter('ALL')">Tous</button>
-        <button [class.active]="filter === 'ACTIVE'" type="button" (click)="setFilter('ACTIVE')">Actifs</button>
-        <button [class.active]="filter === 'EXPIRED'" type="button" (click)="setFilter('EXPIRED')">Expiré</button>
+        <button
+          [class.active]="filter === 'ALL'"
+          type="button"
+          (click)="setFilter('ALL')"
+        >
+          Tous
+        </button>
+
+        <button
+          [class.active]="filter === 'ACTIVE'"
+          type="button"
+          (click)="setFilter('ACTIVE')"
+        >
+          Actifs
+        </button>
+
+        <button
+          [class.active]="filter === 'EXPIRED'"
+          type="button"
+          (click)="setFilter('EXPIRED')"
+        >
+          Expiré
+        </button>
       </div>
 
-      <p class="loading-message" *ngIf="loading">
+      <p
+        class="loading-message"
+        *ngIf="loading"
+      >
         Chargement des fichiers...
       </p>
 
-      <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
+      <p
+        class="error-message"
+        *ngIf="errorMessage"
+      >
+        {{ errorMessage }}
+      </p>
 
-      <div class="empty-state" *ngIf="filteredFiles.length === 0 && !errorMessage">
+      <div
+        class="empty-state"
+        *ngIf="
+          filteredFiles.length === 0
+          && !errorMessage
+          && !loading
+        "
+      >
         Aucun fichier pour le moment.
       </div>
 
       <div class="file-list">
-        <article class="file-row" *ngFor="let file of filteredFiles">
-          <span class="file-icon">📄</span>
+        <article
+          data-cy="history-file"
+          class="file-row"
+          *ngFor="let file of filteredFiles"
+          (click)="$event.stopPropagation()"
+        >
+          <span
+            class="file-icon"
+            aria-hidden="true"
+          >
+            <svg viewBox="0 0 24 24">
+              <path d="M6 2h9l5 5v15H6V2z"></path>
+              <path d="M14 2v6h6"></path>
+              <path d="M8 14h8"></path>
+              <path d="M8 18h8"></path>
+            </svg>
+          </span>
 
           <div class="file-info">
             <strong>{{ file.originalFilename }}</strong>
+
             <span [class.expired]="isExpired(file)">
               {{ getExpirationLabel(file) }}
             </span>
           </div>
 
-          <div class="file-actions" *ngIf="!isExpired(file); else expiredMessage">
-            <button (click)="copyLink(file)">Copier</button>
-            <button (click)="download(file)">Ouvrir</button>
-            <button (click)="delete(file)">Supprimer</button>
+          <div
+            class="desktop-file-actions"
+            *ngIf="!isExpired(file)"
+          >
+            <button
+              type="button"
+              (click)="copyLink(file)"
+            >
+              Copier
+            </button>
+
+            <button
+              type="button"
+              (click)="download(file)"
+            >
+              Ouvrir
+            </button>
+
+            <button
+              data-cy="delete-file"
+              type="button"
+              (click)="delete(file)"
+            >
+              Supprimer
+            </button>
           </div>
 
-          <ng-template #expiredMessage>
-            <span class="expired-text">Ce fichier a expiré.</span>
-          </ng-template>
+          <div
+            class="mobile-file-actions"
+            *ngIf="!isExpired(file)"
+          >
+            <button
+              class="more-button"
+              type="button"
+              aria-label="Afficher les actions du fichier"
+              (click)="
+                $event.stopPropagation();
+                toggleFileMenu(file.uuidFile)
+              "
+            >
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+
+            <div
+              class="file-action-menu"
+              *ngIf="openedFileMenu === file.uuidFile"
+            >
+              <button
+                type="button"
+                (click)="copyLink(file)"
+              >
+                Copier le lien
+              </button>
+
+              <button
+                type="button"
+                (click)="download(file)"
+              >
+                Ouvrir
+              </button>
+
+              <button
+                data-cy="delete-file"
+                type="button"
+                class="delete-menu-item"
+                (click)="delete(file)"
+              >
+                Supprimer
+              </button>
+            </div>
+          </div>
+
+          <span
+            class="expired-text"
+            *ngIf="isExpired(file)"
+          >
+            Expiré
+          </span>
         </article>
       </div>
     </main>
