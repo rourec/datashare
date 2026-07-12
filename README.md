@@ -320,3 +320,42 @@ Un lien expiré retourne automatiquement le code HTTP :
 # Auteur
 
 Projet réalisé dans le cadre de la formation **Expert DevOps** d'OpenClassrooms.
+
+## Documentation de l'API
+
+Lorsque le back-end est démarré, la documentation interactive de l'API est disponible avec Swagger UI :
+
+```text
+http://localhost:8080/swagger-ui.html
+```
+
+La spécification OpenAPI est également disponible aux formats JSON et YAML :
+
+```text
+http://localhost:8080/v3/api-docs
+http://localhost:8080/v3/api-docs.yaml
+```
+
+Les exports versionnés dans le dépôt se trouvent dans :
+
+```text
+docs/api/openapi.json
+docs/api/openapi.yaml
+```
+
+Les routes protégées utilisent une authentification JWT.
+
+Pour tester une route protégée dans Swagger UI :
+
+1. appeler `POST /api/auth/login` ;
+2. copier le token retourné ;
+3. cliquer sur `Authorize` ;
+4. coller le token ;
+5. exécuter la requête souhaitée.
+
+Après une modification de l'API, les fichiers OpenAPI peuvent être régénérés avec :
+
+```bash
+./scripts/export-openapi.sh
+```
+

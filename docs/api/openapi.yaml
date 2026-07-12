@@ -1,0 +1,481 @@
+openapi: 3.1.0
+info:
+  title: DataShare API
+  description: |
+    API REST de l'application DataShare.
+
+    Elle permet :
+    - l'inscription et l'authentification des utilisateurs ;
+    - l'envoi de fichiers ;
+    - la consultation de l'historique ;
+    - le téléchargement par lien public ;
+    - la suppression des fichiers.
+  contact:
+    name: Cédric Roure
+  license:
+    name: Projet pédagogique OpenClassrooms
+  version: 1.0.0
+servers:
+- url: http://localhost:8080
+  description: Generated server url
+tags:
+- name: Authentification
+  description: Création de compte et authentification des utilisateurs.
+- name: Gestion des fichiers
+  description: "Envoi, consultation et suppression des fichiers de l'utilisateur authentifié\
+    ."
+- name: Téléchargement
+  description: Consultation des métadonnées et téléchargement par lien public.
+paths:
+  /api/files/upload:
+    post:
+      tags:
+      - Gestion des fichiers
+      summary: Envoyer un fichier
+      description: |
+        Enregistre un fichier et génère un lien de téléchargement temporaire.
+
+        L'utilisateur doit être authentifié avec un token JWT.
+        La durée de validité doit être comprise entre 1 et 7 jours.
+      operationId: uploadFile
+      requestBody:
+        description: Fichier et durée de validité.
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Fichier à envoyer.
+                expirationDays:
+                  type: integer
+                  format: int32
+                  description: "Durée de validité du lien de téléchargement, comprise\
+                    \ entre 1 et 7 jours."
+                  example: 3
+                  maximum: 7
+                  minimum: 1
+              required:
+              - expirationDays
+              - file
+        required: true
+      responses:
+        "409":
+          description: Le fichier ne peut pas être enregistré.
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+        "401":
+          description: "Token JWT absent, expiré ou invalide."
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+        "201":
+          description: Fichier envoyé avec succès.
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/FileUploadResponse"
+        "400":
+          description: Fichier ou durée d'expiration invalide.
+      security:
+      - bearerAuth: []
+  /api/auth/register:
+    post:
+      tags:
+      - Authentification
+      summary: Créer un compte utilisateur
+      description: |
+        Crée un nouveau compte DataShare.
+
+        L'adresse e-mail doit être valide et ne doit pas déjà être utilisée.
+        Le mot de passe doit contenir au moins 8 caractères.
+      operationId: registerUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+        required: true
+      responses:
+        "409":
+          description: Un compte utilise déjà cette adresse e-mail.
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+        "201":
+          description: Utilisateur créé avec succès.
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Adresse e-mail ou mot de passe invalide.
+  /api/auth/login:
+    post:
+      tags:
+      - Authentification
+      summary: Authentifier un utilisateur
+      description: |
+        Vérifie les identifiants de l'utilisateur et retourne un token JWT.
+
+        Le token doit ensuite être envoyé dans l'en-tête HTTP :
+
+        Authorization: Bearer <token>
+      operationId: loginUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+        required: true
+      responses:
+        "401":
+          description: Adresse e-mail ou mot de passe incorrect.
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+        "200":
+          description: Authentification réussie et token JWT retourné.
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "400":
+          description: Corps de requête invalide.
+  /api/files/history:
+    get:
+      tags:
+      - Gestion des fichiers
+      summary: Consulter l'historique des fichiers
+      description: |
+        Retourne les fichiers appartenant à l'utilisateur authentifié.
+
+        La réponse contient notamment le nom du fichier, sa taille,
+        son statut, sa date d'envoi et sa date d'expiration.
+      operationId: getFileHistory
+      responses:
+        "401":
+          description: "Token JWT absent, expiré ou invalide."
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+        "200":
+          description: Historique retourné avec succès.
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/FileHistoryResponse"
+      security:
+      - bearerAuth: []
+  /api/download/{token}:
+    get:
+      tags:
+      - Téléchargement
+      summary: Télécharger un fichier
+      description: |
+        Télécharge le fichier associé à un token public valide.
+
+        Cette route ne nécessite pas d'authentification.
+        Le téléchargement est refusé lorsque le lien est expiré,
+        que le fichier a été supprimé ou que le token est inconnu.
+      operationId: downloadFile
+      parameters:
+      - name: token
+        in: path
+        description: Token public unique présent dans le lien de téléchargement.
+        required: true
+        schema:
+          type: string
+        example: 9c792ec1-320d-476b-a5c1-e97606082878
+      responses:
+        "200":
+          description: Fichier retourné en téléchargement.
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Token inconnu ou fichier introuvable.
+        "410":
+          description: Lien expiré ou fichier supprimé.
+  /api/download/{token}/metadata:
+    get:
+      tags:
+      - Téléchargement
+      summary: Consulter les métadonnées d'un téléchargement
+      description: |
+        Retourne les informations d'un fichier à partir de son token public.
+
+        Cette route ne nécessite pas d'authentification.
+        Elle permet notamment d'afficher le nom, la taille et la date
+        d'expiration avant le téléchargement.
+      operationId: getDownloadMetadata
+      parameters:
+      - name: token
+        in: path
+        description: Token public unique présent dans le lien de téléchargement.
+        required: true
+        schema:
+          type: string
+        example: 9c792ec1-320d-476b-a5c1-e97606082878
+      responses:
+        "200":
+          description: Métadonnées retournées avec succès.
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/FileDownloadMetadataResponse"
+        "404":
+          description: Token inconnu ou fichier introuvable.
+        "410":
+          description: Lien expiré ou fichier supprimé.
+  /api/files/{uuidFile}:
+    delete:
+      tags:
+      - Gestion des fichiers
+      summary: Supprimer un fichier
+      description: |
+        Supprime un fichier appartenant à l'utilisateur authentifié.
+
+        L'identifiant UUID du fichier est fourni dans le chemin de la requête.
+      operationId: deleteFile
+      parameters:
+      - name: uuidFile
+        in: path
+        description: Identifiant UUID du fichier à supprimer.
+        required: true
+        schema:
+          type: string
+          format: uuid
+        example: a3e7c945-4b56-4be8-a7d3-920797fb6125
+      responses:
+        "401":
+          description: "Token JWT absent, expiré ou invalide."
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/ApiErrorResponse"
+        "204":
+          description: Fichier supprimé avec succès.
+        "403":
+          description: Le fichier n'appartient pas à l'utilisateur.
+        "404":
+          description: Fichier introuvable.
+      security:
+      - bearerAuth: []
+components:
+  schemas:
+    ApiErrorResponse:
+      type: object
+      description: Format commun retourné lorsqu'une erreur survient.
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+          format: int32
+          description: Code HTTP de l'erreur.
+          example: 404
+        error:
+          type: string
+          description: Libellé associé au code HTTP.
+          example: Not Found
+        message:
+          type: string
+          description: Description fonctionnelle de l'erreur.
+          example: Fichier introuvable
+        path:
+          type: string
+          description: Chemin de la requête ayant provoqué l'erreur.
+          example: /api/download/token-invalide
+        validationErrors:
+          type: object
+          additionalProperties:
+            type: string
+    FileUploadRequest:
+      type: object
+      description: Paramètres associés à l'envoi d'un fichier.
+      properties:
+        expirationDays:
+          type: integer
+          format: int32
+          description: "Durée de validité du lien, comprise entre 1 et 7 jours."
+          example: 3
+          maximum: 7
+          minimum: 1
+    FileUploadResponse:
+      type: object
+      description: Informations retournées après l'envoi d'un fichier.
+      properties:
+        uuidFile:
+          type: string
+          format: uuid
+          description: Identifiant UUID du fichier.
+          example: a3e7c945-4b56-4be8-a7d3-920797fb6125
+        originalFilename:
+          type: string
+          description: Nom d'origine du fichier.
+          example: rapport.pdf
+        size:
+          type: integer
+          format: int64
+          description: Taille du fichier en octets.
+          example: 1048576
+        contentType:
+          type: string
+          description: Type MIME du fichier.
+          example: application/pdf
+        downloadToken:
+          type: string
+          description: Token public permettant le téléchargement.
+          example: 9c792ec1-320d-476b-a5c1-e97606082878
+        downloadUrl:
+          type: string
+          description: URL publique de téléchargement.
+          example: http://localhost:4200/download/9c792ec1-320d-476b-a5c1-e97606082878
+        expiresAt:
+          type: string
+          format: date-time
+          description: Date et heure d'expiration du lien.
+          example: 2026-07-15T15:00:00Z
+    RegisterRequest:
+      type: object
+      description: Informations nécessaires à la création d'un compte.
+      properties:
+        email:
+          type: string
+          format: email
+          description: Adresse e-mail valide et unique de l'utilisateur.
+          example: cedric@example.com
+          minLength: 1
+        password:
+          type: string
+          description: Mot de passe contenant au moins 8 caractères.
+          example: MotDePasse123!
+          maxLength: 2147483647
+          minLength: 8
+          writeOnly: true
+      required:
+      - email
+      - password
+    AuthResponse:
+      type: object
+      description: Informations du compte utilisateur créé.
+      properties:
+        uuidUser:
+          type: string
+          format: uuid
+          description: Identifiant UUID unique de l'utilisateur.
+          example: fa42e6b7-2492-4aad-b79e-d3e54dc212e0
+        email:
+          type: string
+          description: Adresse e-mail du compte créé.
+          example: cedric@example.com
+    LoginRequest:
+      type: object
+      description: Identifiants utilisés pour l'authentification.
+      properties:
+        email:
+          type: string
+          format: email
+          description: Adresse e-mail de l'utilisateur.
+          example: cedric@example.com
+          minLength: 1
+        password:
+          type: string
+          description: Mot de passe de l'utilisateur.
+          example: MotDePasse123!
+          minLength: 1
+          writeOnly: true
+      required:
+      - email
+      - password
+    LoginResponse:
+      type: object
+      description: Token JWT retourné après une authentification réussie.
+      properties:
+        token:
+          type: string
+          description: Token JWT à transmettre aux routes protégées.
+          example: eyJhbGciOiJIUzI1NiJ9...
+        tokenType:
+          type: string
+          description: Type du token retourné.
+          example: Bearer
+    FileHistoryResponse:
+      type: object
+      description: Informations d'un fichier présent dans l'historique.
+      properties:
+        uuidFile:
+          type: string
+          format: uuid
+        originalFilename:
+          type: string
+        size:
+          type: integer
+          format: int64
+        contentType:
+          type: string
+        downloadUrl:
+          type: string
+        status:
+          type: string
+          description: "Statut du fichier : ACTIVE, EXPIRED ou DELETED."
+          enum:
+          - ACTIVE
+          - EXPIRED
+          - DELETED
+          example: ACTIVE
+        uploadedAt:
+          type: string
+          format: date-time
+          description: Date et heure d'envoi du fichier.
+          example: 2026-07-12T15:00:00Z
+        expiresAt:
+          type: string
+          format: date-time
+          description: Date et heure d'expiration du fichier.
+          example: 2026-07-15T15:00:00Z
+    FileDownloadMetadataResponse:
+      type: object
+      description: Informations publiques disponibles avant le téléchargement.
+      properties:
+        originalFilename:
+          type: string
+          description: Nom d'origine du fichier.
+          example: rapport.pdf
+        size:
+          type: integer
+          format: int64
+          description: Taille du fichier en octets.
+          example: 1048576
+        contentType:
+          type: string
+          description: Type MIME du fichier.
+          example: application/pdf
+        expiresAt:
+          type: string
+          format: date-time
+          description: Date et heure d'expiration du lien.
+          example: 2026-07-15T15:00:00Z
+  securitySchemes:
+    bearerAuth:
+      type: http
+      description: |
+        Token JWT obtenu avec POST /api/auth/login.
+
+        Dans Swagger UI, saisissez uniquement le token.
+      scheme: bearer
+      bearerFormat: JWT
