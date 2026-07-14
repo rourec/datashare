@@ -29,7 +29,8 @@ public class FileValidator {
                 ? "application/octet-stream"
                 : file.getContentType();
 
-        if (!allowedContentTypes.contains(contentType)) {
+        if (!allowedContentTypes.contains("*")
+                && !allowedContentTypes.contains(contentType)) {
             throw new IllegalArgumentException("File type is not allowed");
         }
     }
