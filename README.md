@@ -86,7 +86,43 @@ Les liens de téléchargement sont publics, mais expirent automatiquement à la 
 
 ---
 
-# Installation
+# Installation automatisée
+
+Les commandes ci-dessous sont prévues pour une machine sous Rocky Linux 9.
+
+Elles doivent être exécutées avec le compte `root`.
+
+## 1. Prérequis
+
+Mettre à jour le système 
+
+```bash
+dnf update -y
+```
+
+Installer les outils Git
+
+```bash
+dnf install -y \
+  git \
+  curl \
+  dnf-plugins-core
+```
+
+Cloner le dépôt Git
+
+```bash
+git clone https://github.com/rourec/datashare
+```
+
+## 2. Déploiement via script
+
+```bash
+cd datashare
+./deploy.sh
+```
+
+# Installation manuelle
 
 Les commandes ci-dessous sont prévues pour une machine sous Rocky Linux 9.
 
