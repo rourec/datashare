@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 GREEN='\033[1;32m'
 NC='\033[0m'
 
@@ -61,7 +63,7 @@ node --version
 npm --version
 
 # ==============================================================================
-# Clone du projet (si nécessaire)
+# Clonage du projet (si nécessaire)
 # ==============================================================================
 
 # step "Clonage du dépôt Git"
@@ -88,7 +90,7 @@ npm ci
 cd ..
 
 # ==============================================================================
-# Lancement de l'application
+# Lancement du Backend
 # ==============================================================================
 
 step "Lancement du backend"
@@ -98,6 +100,12 @@ step "Lancement du backend"
     ./mvnw spring-boot:run
 ) &
 
+BACKEND_PID=$!
+
+# ==============================================================================
+# Lancement du Frontend
+# ==============================================================================
+
 step "Lancement du frontend"
 
 (
@@ -105,9 +113,29 @@ step "Lancement du frontend"
     npm start -- --host 0.0.0.0
 ) &
 
+FRONTEND_PID=$!
+
+# ==============================================================================
+# Attente du démarrage complet
+# ==============================================================================
+
+step "Attente du démarrage des services"
+
+until curl -sf http://localhost:8080/actuator/health >/dev/null 2>&1; do
+    sleep 2
+done
+
+until curl -sf http://localhost:4200 >/dev/null 2>&1; do
+    sleep 2
+done
+
+# ==============================================================================
+# Fin
+# ==============================================================================
+
 step "Application démarrée"
 
 echo "Backend  : http://localhost:8080"
 echo "Frontend : http://localhost:4200"
 
-wait
+wait $BACKEND_PID $FRONTEND_PID
