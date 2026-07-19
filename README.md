@@ -181,19 +181,20 @@ dnf install -y \
 ## 2. Sélectionner Java 21
 
 ```bash
-alternatives --set java \
-  /usr/lib/jvm/java-21-openjdk/bin/java
-
-alternatives --set javac \
-  /usr/lib/jvm/java-21-openjdk/bin/javac
+alternatives --config java
+alternatives --config javac
 ```
+
+Sélectionner la version correspondant à Java 21.
 
 ## 3. Configurer JAVA_HOME
 
 ```bash
-cat > /etc/profile.d/java21.sh <<'JAVAEOF'
-export JAVA_HOME=/usr/lib/jvm/java-21-openjdk
-export PATH="$JAVA_HOME/bin:$PATH"
+JAVA_HOME=$(dirname "$(dirname "$(readlink -f "$(command -v java)")")")
+
+cat > /etc/profile.d/java21.sh <<JAVAEOF
+export JAVA_HOME=$JAVA_HOME
+export PATH="\$JAVA_HOME/bin:\$PATH"
 JAVAEOF
 
 source /etc/profile.d/java21.sh
@@ -204,9 +205,10 @@ source /etc/profile.d/java21.sh
 ```bash
 java -version
 javac -version
+echo "$JAVA_HOME"
 ```
 
-Les deux commandes doivent afficher une version Java 21.
+Les commandes doivent confirmer l'utilisation de Java 21 et afficher le chemin utilisé dans `JAVA_HOME`.
 
 ---
 
@@ -418,10 +420,21 @@ cd /root/datashare/frontend
 ## 2. Installer les dépendances
 
 ```bash
-npm install
+npm ci
 ```
 
-## 3. Lancer le frontend
+La commande installe les versions exactes définies dans `package-lock.json`, notamment Angular CLI utilisé par le script `npm start`.
+
+## 3. Vérifier Node.js et npm
+
+```bash
+node --version
+npm --version
+```
+
+La version de Node.js doit être une version 22 récente.
+
+## 4. Lancer le frontend
 
 ```bash
 npm start -- --host 0.0.0.0
