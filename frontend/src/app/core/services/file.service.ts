@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface FileHistory {
   uuidFile: string;
@@ -27,8 +28,8 @@ export interface FileUploadResponse {
   providedIn: 'root'
 })
 export class FileService {
-  private readonly apiUrl = 'http://localhost:8080/api/files';
-  private readonly downloadBaseUrl = 'http://localhost:8080';
+  private readonly apiUrl = `${environment.apiBaseUrl}/api/files`;
+  private readonly downloadBaseUrl = environment.apiBaseUrl;
 
   constructor(private http: HttpClient) {}
 

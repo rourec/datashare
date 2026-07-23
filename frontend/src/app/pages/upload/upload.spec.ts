@@ -134,7 +134,11 @@ describe('Upload', () => {
   });
 
   it('should display a maximum size error for an HTTP 413 response', () => {
-    component.selectedFile = new File(['content'], 'large.zip');
+    component.selectedFile = new File(
+      ['content'],
+      'large.txt',
+      { type: 'text/plain' }
+    );
 
     fileServiceMock.upload.mockReturnValue(
       throwError(() => ({
@@ -151,7 +155,11 @@ describe('Upload', () => {
   });
 
   it('should display a session error for an HTTP 401 response', () => {
-    component.selectedFile = new File(['content'], 'document.txt');
+    component.selectedFile = new File(
+      ['content'],
+      'document.txt',
+      { type: 'text/plain' }
+    );
 
     fileServiceMock.upload.mockReturnValue(
       throwError(() => ({
@@ -167,7 +175,11 @@ describe('Upload', () => {
   });
 
   it('should display the backend error message when available', () => {
-    component.selectedFile = new File(['content'], 'document.txt');
+    component.selectedFile = new File(
+      ['content'],
+      'document.txt',
+      { type: 'text/plain' }
+    );
 
     fileServiceMock.upload.mockReturnValue(
       throwError(() => ({
@@ -186,7 +198,11 @@ describe('Upload', () => {
   });
 
   it('should display a generic error for an unknown failure', () => {
-    component.selectedFile = new File(['content'], 'document.txt');
+    component.selectedFile = new File(
+      ['content'],
+      'document.txt',
+      { type: 'text/plain' }
+    );
 
     fileServiceMock.upload.mockReturnValue(
       throwError(() => ({
@@ -199,6 +215,22 @@ describe('Upload', () => {
     expect(component.errorMessage).toBe(
       'Impossible de téléverser ce fichier.'
     );
+  });
+
+
+  it('should reject a forbidden file type before upload', () => {
+    component.selectedFile = new File(
+      ['content'],
+      'script.exe',
+      { type: 'application/x-msdownload' }
+    );
+
+    component.upload();
+
+    expect(component.errorMessage).toBe(
+      'Type de fichier non autorisé.'
+    );
+    expect(fileServiceMock.upload).not.toHaveBeenCalled();
   });
 
   it('should format file sizes', () => {

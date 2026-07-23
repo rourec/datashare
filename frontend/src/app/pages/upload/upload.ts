@@ -9,6 +9,7 @@ import {
   FileService,
   FileUploadResponse
 } from '../../core/services/file.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-upload',
@@ -18,6 +19,16 @@ import {
 })
 export class Upload {
   private readonly maxFileSize = 1024 * 1024 * 1024;
+
+  private readonly allowedFileTypes = [
+    'text/plain',
+    'application/pdf',
+    'image/png',
+    'image/jpeg',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+  ];
 
   selectedFile?: File;
   expirationDays = 7;
@@ -39,10 +50,18 @@ export class Upload {
     );
   }
 
+  get fileTypeNotAllowed(): boolean {
+    return Boolean(
+      this.selectedFile
+      && !this.allowedFileTypes.includes(this.selectedFile.type)
+    );
+  }
+
   get uploadDisabled(): boolean {
     return this.loading
       || !this.selectedFile
-      || this.fileTooLarge;
+      || this.fileTooLarge
+      || this.fileTypeNotAllowed;
   }
 
   onFileSelected(event: Event): void {
@@ -55,6 +74,9 @@ export class Upload {
     if (this.fileTooLarge) {
       this.errorMessage =
         'La taille des fichiers est limitée à 1 Go.';
+    } else if (this.fileTypeNotAllowed) {
+      this.errorMessage =
+        'Type de fichier non autorisé.';
     } else {
       this.errorMessage = '';
     }
@@ -98,6 +120,13 @@ export class Upload {
       return;
     }
 
+    if (this.fileTypeNotAllowed) {
+      this.errorMessage =
+        'Type de fichier non autorisé.';
+      this.changeDetectorRef.detectChanges();
+      return;
+    }
+
     this.errorMessage = '';
     this.loading = true;
     this.changeDetectorRef.detectChanges();
@@ -107,7 +136,7 @@ export class Upload {
       .subscribe({
         next: (response: FileUploadResponse) => {
           const publicDownloadUrl =
-            `http://datashare.fr:4200/download/`
+            `${environment.frontendBaseUrl}/download/`
             + response.downloadToken;
 
           sessionStorage.setItem(

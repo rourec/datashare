@@ -6,6 +6,7 @@ import { History } from './pages/history/history';
 import { Upload } from './pages/upload/upload';
 import { UploadSuccess } from './pages/upload-success/upload-success';
 import { Download } from './pages/download/download';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -26,15 +27,18 @@ export const routes: Routes = [
   },
   {
     path: 'mon-espace',
-    component: History
+    component: History,
+    canActivate: [authGuard]
   },
   {
     path: 'upload',
-    component: Upload
+    component: Upload,
+    canActivate: [authGuard]
   },
   {
     path: 'upload-success',
-    component: UploadSuccess
+    component: UploadSuccess,
+    canActivate: [authGuard]
   },
   {
     path: 'download/:token',

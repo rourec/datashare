@@ -7,6 +7,7 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Card } from '../../shared/card/card';
+import { environment } from '../../../environments/environment';
 
 interface DownloadMetadata {
   originalFilename: string;
@@ -22,7 +23,7 @@ interface DownloadMetadata {
   styleUrl: './download.scss'
 })
 export class Download implements OnInit {
-  private readonly apiUrl = 'http://datashare.fr:8080/api/download';
+  private readonly apiUrl = `${environment.apiBaseUrl}/api/download`;
 
   token = '';
   metadata?: DownloadMetadata;

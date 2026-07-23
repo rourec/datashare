@@ -10,6 +10,7 @@ import {
   FileService,
   FileUploadResponse
 } from './file.service';
+import { environment } from '../../../environments/environment';
 
 describe('FileService', () => {
   let service: FileService;
@@ -56,7 +57,7 @@ describe('FileService', () => {
     });
 
     const request = httpTesting.expectOne(
-      'http://localhost:8080/api/files/history'
+      `${environment.apiBaseUrl}/api/files/history`
     );
 
     expect(request.request.method).toBe('GET');
@@ -70,7 +71,7 @@ describe('FileService', () => {
     service.history().subscribe();
 
     const request = httpTesting.expectOne(
-      'http://localhost:8080/api/files/history'
+      `${environment.apiBaseUrl}/api/files/history`
     );
 
     expect(request.request.headers.has('Authorization')).toBe(false);
@@ -102,7 +103,7 @@ describe('FileService', () => {
     });
 
     const request = httpTesting.expectOne(
-      'http://localhost:8080/api/files/upload'
+      `${environment.apiBaseUrl}/api/files/upload`
     );
 
     expect(request.request.method).toBe('POST');
@@ -125,7 +126,7 @@ describe('FileService', () => {
     service.upload(file).subscribe();
 
     const request = httpTesting.expectOne(
-      'http://localhost:8080/api/files/upload'
+      `${environment.apiBaseUrl}/api/files/upload`
     );
 
     const formData = request.request.body as FormData;
@@ -151,7 +152,7 @@ describe('FileService', () => {
     });
 
     const request = httpTesting.expectOne(
-      'http://localhost:8080/api/files/file-uuid'
+      `${environment.apiBaseUrl}/api/files/file-uuid`
     );
 
     expect(request.request.method).toBe('DELETE');
@@ -174,6 +175,6 @@ describe('FileService', () => {
     };
 
     expect(service.getDownloadUrl(file))
-      .toBe('http://localhost:8080/api/download/token-123');
+      .toBe(`${environment.apiBaseUrl}/api/download/token-123`);
   });
 });

@@ -6,6 +6,7 @@ import {
 } from '@angular/common/http/testing';
 
 import { AuthService } from './auth.service';
+import { environment } from '../../../environments/environment';
 
 describe('AuthService', () => {
   let service: AuthService;
@@ -37,7 +38,7 @@ describe('AuthService', () => {
     });
 
     const request = httpTesting.expectOne(
-      'http://localhost:8080/api/auth/login'
+      `${environment.apiBaseUrl}/api/auth/login`
     );
 
     expect(request.request.method).toBe('POST');
@@ -60,7 +61,7 @@ describe('AuthService', () => {
     });
 
     const request = httpTesting.expectOne(
-      'http://localhost:8080/api/auth/register'
+      `${environment.apiBaseUrl}/api/auth/register`
     );
 
     expect(request.request.method).toBe('POST');
@@ -85,6 +86,16 @@ describe('AuthService', () => {
 
   it('should return null when no token is stored', () => {
     expect(service.getToken()).toBeNull();
+  });
+
+  it('should return true when a token is stored', () => {
+    localStorage.setItem('token', 'stored-token');
+
+    expect(service.isAuthenticated()).toBe(true);
+  });
+
+  it('should return false when no token is stored', () => {
+    expect(service.isAuthenticated()).toBe(false);
   });
 
   it('should remove the token during logout', () => {
